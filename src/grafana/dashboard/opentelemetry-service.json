@@ -118,6 +118,7 @@
   "graphTooltip": 1,
   "id": null,
   "links": [],
+  "liveNow": true,
   "panels": [
     {
       "collapsed": false,
@@ -214,7 +215,7 @@
             "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
           },
           "editorMode": "code",
-          "expr": "timestamp(sum by (deployment_environment_name, service_namespace, exported_job) (target_info{deployment_environment_name=~\"$deployment_environment_name\", service_namespace=~\"$service_namespace\", exported_job=\"$service_name\"}) or absent{})",
+          "expr": "timestamp(sum by (deployment_environment_name, service_namespace, exported_job) (target_info{deployment_environment_name=~\"$deployment_environment_name\", service_namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}) or absent{})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -317,7 +318,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by(le, namespace, exported_job) (rate(http_server_request_duration_seconds_bucket{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by(le, namespace, exported_job) (rate(http_server_request_duration_seconds_bucket{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval])))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -333,7 +334,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "histogram_quantile(0.9, sum by(le, namespace, exported_job) (rate(http_server_request_duration_seconds_bucket{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.9, sum by(le, namespace, exported_job) (rate(http_server_request_duration_seconds_bucket{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval])))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "P90",
@@ -348,7 +349,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(namespace, exported_job) (rate(http_server_request_duration_seconds_sum{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval])) / avg by(namespace, exported_job) (rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval]))",
+          "expr": "avg by(namespace, exported_job) (rate(http_server_request_duration_seconds_sum{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval])) / avg by(namespace, exported_job) (rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -457,7 +458,7 @@
             "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
           },
           "editorMode": "code",
-          "expr": "(sum(rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval])) by (namespace, exported_job)) ",
+          "expr": "(sum(rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval])) by (namespace, exported_job)) ",
           "hide": false,
           "legendFormat": "Requests",
           "range": true,
@@ -559,7 +560,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "(sum by(namespace, exported_job) (rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\", http_response_status_code=~\"5..\"}[$__rate_interval])) * 100) / sum by(namespace, exported_job) (rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval]))",
+          "expr": "(sum by(namespace, exported_job) (rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\", http_response_status_code=~\"5..\"}[$__rate_interval])) * 100) / sum by(namespace, exported_job) (rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -574,7 +575,7 @@
       "type": "timeseries"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -582,999 +583,998 @@
         "y": 10
       },
       "id": 22,
-      "panels": [
+      "panels": [],
+      "title": "Operations (inbound) e Dependencies (outbound)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_datasource}"
+      },
+      "description": "Inbound HTTP operations of the service (aka HTTP endpoints) based on the `http.server.request.duration` metric.\n\nErrors are identified by `http.response.status_code=~\"5..\"`.\n\nSee https://opentelemetry.io/docs/specs/semconv/http/http-metrics/#metric-httpserverrequestduration",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration (p99)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "reqps"
+              },
+              {
+                "id": "custom.width",
+                "value": 219
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 11
+      },
+      "id": 21,
+      "interval": "60s",
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Rate"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${prometheus_datasource}"
+            "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
           },
-          "description": "Inbound HTTP operations of the service (aka HTTP endpoints) based on the `http.server.request.duration` metric.\n\nErrors are identified by `http.response.status_code=~\"5..\"`.\n\nSee https://opentelemetry.io/docs/specs/semconv/http/http-metrics/#metric-httpserverrequestduration",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "auto"
-                },
-                "inspect": false
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Duration (p99)"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "s"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Rate"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "reqps"
-                  },
-                  {
-                    "id": "custom.width",
-                    "value": 219
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Error"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "percentunit"
-                  }
-                ]
-              }
-            ]
-          },
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 0,
-            "y": 43
-          },
-          "id": 21,
-          "interval": "60s",
-          "options": {
-            "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
-            "showHeader": true,
-            "sortBy": [
-              {
-                "desc": true,
-                "displayName": "Rate"
-              }
-            ]
-          },
-          "pluginVersion": "12.0.0",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
-              },
-              "disableTextWrap": false,
-              "editorMode": "code",
-              "expr": "avg_over_time(\n  sum by (operation) (\n    label_join(\n      rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval]),\n      \"operation\",\n      \" \",\n      \"http_request_method\",\n      \"http_route\"\n    )\n  )[5m:]\n)",
-              "fullMetaSearch": false,
-              "includeNullMetadata": true,
-              "legendFormat": "{{operation}}",
-              "range": true,
-              "refId": "RPS",
-              "useBackend": false
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${prometheus_datasource}"
-              },
-              "editorMode": "code",
-              "expr": "(\n        sum by (operation) (\n            label_join(\n                rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\", http_response_status_code=~\"5..\"}[$__rate_interval]),\n                \"operation\",\n                \" \",\n                \"http_request_method\",\n                \"http_route\"\n            )\n        )\n     / \n        sum by (operation) (\n            label_join(\n                rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval]),\n                \"operation\",\n                \" \",\n                \"http_request_method\",\n                \"http_route\"\n            )\n        )\n    ) or (0 * \n        sum by (operation) (\n            label_join(\n                rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval]),\n                \"operation\",\n                \" \",\n                \"http_request_method\",\n                \"http_route\"\n            )\n        )\n    )",
-              "hide": false,
-              "instant": false,
-              "legendFormat": "{{operation}}",
-              "range": true,
-              "refId": "ERR_PCT"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
-              },
-              "editorMode": "code",
-              "expr": "\n        histogram_quantile(\n            0.99,\n            sum by (le, operation) (\n                label_join(\n                rate(http_server_request_duration_seconds_bucket{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[5m]),\n                \"operation\",\n                \" \",\n                \"http_request_method\",\n                \"http_route\"\n                )\n            )\n        )\n    ",
-              "hide": false,
-              "instant": false,
-              "legendFormat": "{{operation}}",
-              "range": true,
-              "refId": "Duration"
-            }
-          ],
-          "title": "HTTP Operations",
-          "transformations": [
-            {
-              "id": "timeSeriesTable",
-              "options": {
-                "Duration": {
-                  "timeField": "Time"
-                },
-                "ERR_PCT": {
-                  "timeField": "Time"
-                },
-                "RPS": {
-                  "timeField": "Time"
-                }
-              }
-            },
-            {
-              "id": "joinByField",
-              "options": {
-                "byField": "operation",
-                "mode": "outer"
-              }
-            },
-            {
-              "id": "organize",
-              "options": {
-                "excludeByName": {},
-                "includeByName": {},
-                "indexByName": {
-                  "Trend #Duration": 1,
-                  "Trend #ERR_PCT": 2,
-                  "Trend #RPS": 3,
-                  "operation": 0
-                },
-                "renameByName": {
-                  "Trend #Duration": "Duration (p99)",
-                  "Trend #ERR_PCT": "Error",
-                  "Trend #RPS": "Rate",
-                  "operation": "Operation"
-                }
-              }
-            }
-          ],
-          "type": "table"
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "avg_over_time(\n  sum by (operation) (\n    label_join(\n      rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval]),\n      \"operation\",\n      \" \",\n      \"http_request_method\",\n      \"http_route\"\n    )\n  )[5m:]\n)",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{operation}}",
+          "range": true,
+          "refId": "RPS",
+          "useBackend": false
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${prometheus_datasource}"
           },
-          "description": "Performance - Dependencies",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
+          "editorMode": "code",
+          "expr": "(\n        sum by (operation) (\n            label_join(\n                rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\", http_response_status_code=~\"5..\"}[$__rate_interval]),\n                \"operation\",\n                \" \",\n                \"http_request_method\",\n                \"http_route\"\n            )\n        )\n     / \n        sum by (operation) (\n            label_join(\n                rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval]),\n                \"operation\",\n                \" \",\n                \"http_request_method\",\n                \"http_route\"\n            )\n        )\n    ) or (0 * \n        sum by (operation) (\n            label_join(\n                rate(http_server_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval]),\n                \"operation\",\n                \" \",\n                \"http_request_method\",\n                \"http_route\"\n            )\n        )\n    )",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{operation}}",
+          "range": true,
+          "refId": "ERR_PCT"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
+          },
+          "editorMode": "code",
+          "expr": "\n        histogram_quantile(\n            0.99,\n            sum by (le, operation) (\n                label_join(\n                rate(http_server_request_duration_seconds_bucket{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[5m]),\n                \"operation\",\n                \" \",\n                \"http_request_method\",\n                \"http_route\"\n                )\n            )\n        )\n    ",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{operation}}",
+          "range": true,
+          "refId": "Duration"
+        }
+      ],
+      "title": "HTTP Operations",
+      "transformations": [
+        {
+          "id": "timeSeriesTable",
+          "options": {
+            "Duration": {
+              "timeField": "Time"
+            },
+            "ERR_PCT": {
+              "timeField": "Time"
+            },
+            "RPS": {
+              "timeField": "Time"
+            }
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "operation",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {
+              "Trend #Duration": 1,
+              "Trend #ERR_PCT": 2,
+              "Trend #RPS": 3,
+              "operation": 0
+            },
+            "renameByName": {
+              "Trend #Duration": "Duration (p99)",
+              "Trend #ERR_PCT": "Error",
+              "Trend #RPS": "Rate",
+              "operation": "Operation"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_datasource}"
+      },
+      "description": "Performance - Dependencies",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto",
+              "wrapText": false
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
               },
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "auto",
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration (P99)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "custom.width"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "reqps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 11
+      },
+      "id": 23,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "google",
+          "url": "https://www.google.com.br/"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Rate"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg_over_time(\nsum by (outbound_service) (\n    label_join(\n        rate(http_client_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval]),\n        \"outbound_service\",\n        \" \",\n        \"server_address\",\n        \"http_request_method\",\n        \"url_template\"\n    )\n  )[5m:]\n)",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "HTTP: {{http_request_method}} {{server_address}}",
+          "range": true,
+          "refId": "RPS",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus_datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(\n        sum by (outbound_service) (\n            label_join(\n                rate(http_client_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\", http_response_status_code=~\"5..\"}[$__rate_interval]),\n                \"outbound_service\",\n                \" \",\n                \"server_address\",\n                \"http_request_method\",\n                \"url_template\"\n            )\n        )\n     / \n        sum by (outbound_service) (\n            label_join(\n                rate(http_client_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval]),\n                \"outbound_service\",\n                \" \",\n                \"server_address\",\n                \"http_request_method\",\n                \"url_template\"\n            )\n        )\n    ) or (0 * \n        sum by (outbound_service) (\n            label_join(\n                rate(http_client_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[$__rate_interval]),\n                \"outbound_service\",\n                \" \",\n                \"server_address\",\n                \"http_request_method\",\n                \"url_template\"\n            )\n        )\n    )",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "HTTP: {{http_request_method}} {{server_address}}",
+          "range": true,
+          "refId": "ERR_PCT"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
+          },
+          "editorMode": "code",
+          "expr": "\nhistogram_quantile(\n    0.99,\n    sum by (le, outbound_service) (\n        label_join(\n        rate(http_client_request_duration_seconds_bucket{namespace=~\"$service_namespace\", exported_job=~\"$service_name\"}[5m]),\n        \"outbound_service\",\n        \" \",\n        \"server_address\",\n        \"http_request_method\",\n        \"url_template\"\n        )\n    )\n)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "HTTP: {{http_request_method}} {{server_address}}",
+          "range": true,
+          "refId": "DURATION"
+        }
+      ],
+      "title": "Outbound HTTP Services",
+      "transformations": [
+        {
+          "id": "timeSeriesTable",
+          "options": {
+            "DURATION": {
+              "timeField": ""
+            },
+            "Duration": {
+              "timeField": "Time"
+            },
+            "ERR_PCT": {
+              "timeField": "Time"
+            },
+            "RPS": {
+              "timeField": "Time"
+            }
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "outbound_service",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {
+              "Trend #DURATION": 1,
+              "Trend #ERR_PCT": 2,
+              "Trend #RPS": 3,
+              "outbound_service": 0
+            },
+            "renameByName": {
+              "Trend #DURATION": "Duration (P99)",
+              "Trend #Duration": "Duration (p99)",
+              "Trend #ERR_PCT": "Error",
+              "Trend #RPS": "Rate",
+              "operation": "Operation",
+              "outbound_service": "Service"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "5xx"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 92
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "4xx"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 105
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "3xx"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "2xx"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 112
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text",
                   "wrapText": false
-                },
-                "filterable": false,
-                "inspect": false
-              },
-              "fieldMinMax": false,
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Duration (P99)"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "s"
-                  },
-                  {
-                    "id": "custom.width"
-                  }
-                ]
+                }
               },
               {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Rate"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "reqps"
-                  }
-                ]
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 0.01
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.1
+                    }
+                  ]
+                }
               },
               {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Error"
-                },
-                "properties": [
+                "id": "mappings",
+                "value": [
                   {
-                    "id": "unit",
-                    "value": "percentunit"
+                    "options": {
+                      "NaN": {
+                        "index": 0,
+                        "text": "0%"
+                      }
+                    },
+                    "type": "value"
                   }
                 ]
               }
             ]
           },
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
-            "y": 43
-          },
-          "id": 23,
-          "links": [
-            {
-              "targetBlank": true,
-              "title": "google",
-              "url": "https://www.google.com.br/"
-            }
-          ],
-          "options": {
-            "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "enablePagination": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Method"
             },
-            "showHeader": true,
-            "sortBy": [
+            "properties": [
               {
-                "desc": true,
-                "displayName": "Rate"
+                "id": "custom.width",
+                "value": 78
               }
             ]
           },
-          "pluginVersion": "12.0.0",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
-              },
-              "disableTextWrap": false,
-              "editorMode": "code",
-              "exemplar": false,
-              "expr": "avg_over_time(\nsum by (outbound_service) (\n    label_join(\n        rate(http_client_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval]),\n        \"outbound_service\",\n        \" \",\n        \"server_address\",\n        \"http_request_method\",\n        \"url_template\"\n    )\n  )[5m:]\n)",
-              "fullMetaSearch": false,
-              "hide": false,
-              "includeNullMetadata": true,
-              "instant": false,
-              "interval": "",
-              "legendFormat": "HTTP: {{http_request_method}} {{server_address}}",
-              "range": true,
-              "refId": "RPS",
-              "useBackend": false
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests"
             },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${prometheus_datasource}"
-              },
-              "editorMode": "code",
-              "expr": "(\n        sum by (outbound_service) (\n            label_join(\n                rate(http_client_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\", http_response_status_code=~\"5..\"}[$__rate_interval]),\n                \"outbound_service\",\n                \" \",\n                \"server_address\",\n                \"http_request_method\",\n                \"url_template\"\n            )\n        )\n     / \n        sum by (outbound_service) (\n            label_join(\n                rate(http_client_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval]),\n                \"outbound_service\",\n                \" \",\n                \"server_address\",\n                \"http_request_method\",\n                \"url_template\"\n            )\n        )\n    ) or (0 * \n        sum by (outbound_service) (\n            label_join(\n                rate(http_client_request_duration_seconds_count{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[$__rate_interval]),\n                \"outbound_service\",\n                \" \",\n                \"server_address\",\n                \"http_request_method\",\n                \"url_template\"\n            )\n        )\n    )",
-              "hide": false,
-              "instant": false,
-              "legendFormat": "HTTP: {{http_request_method}} {{server_address}}",
-              "range": true,
-              "refId": "ERR_PCT"
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 115
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Errors"
             },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS-CLUSTER-DESENV}"
-              },
-              "editorMode": "code",
-              "expr": "\nhistogram_quantile(\n    0.99,\n    sum by (le, outbound_service) (\n        label_join(\n        rate(http_client_request_duration_seconds_bucket{namespace=~\"$service_namespace\", exported_job=\"$service_name\"}[5m]),\n        \"outbound_service\",\n        \" \",\n        \"server_address\",\n        \"http_request_method\",\n        \"url_template\"\n        )\n    )\n)",
-              "hide": false,
-              "instant": false,
-              "legendFormat": "HTTP: {{http_request_method}} {{server_address}}",
-              "range": true,
-              "refId": "DURATION"
-            }
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Route"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 438
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 43,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
           ],
-          "title": "Outbound HTTP Services",
-          "transformations": [
-            {
-              "id": "timeSeriesTable",
-              "options": {
-                "DURATION": {
-                  "timeField": ""
-                },
-                "Duration": {
-                  "timeField": "Time"
-                },
-                "ERR_PCT": {
-                  "timeField": "Time"
-                },
-                "RPS": {
-                  "timeField": "Time"
-                }
-              }
-            },
-            {
-              "id": "joinByField",
-              "options": {
-                "byField": "outbound_service",
-                "mode": "outer"
-              }
-            },
-            {
-              "id": "organize",
-              "options": {
-                "excludeByName": {},
-                "includeByName": {},
-                "indexByName": {
-                  "Trend #DURATION": 1,
-                  "Trend #ERR_PCT": 2,
-                  "Trend #RPS": 3,
-                  "outbound_service": 0
-                },
-                "renameByName": {
-                  "Trend #DURATION": "Duration (P99)",
-                  "Trend #Duration": "Duration (p99)",
-                  "Trend #ERR_PCT": "Error",
-                  "Trend #RPS": "Rate",
-                  "operation": "Operation",
-                  "outbound_service": "Service"
-                }
-              }
-            }
-          ],
-          "type": "table"
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "2xx"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS-CLUSTER-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_route=~\".*\", \n  http_route!=\"/healthz\", \n  http_route!=\"\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000",
+          "format": "table",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "x",
+          "range": true,
+          "refId": "A"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${prometheus_datasource}"
           },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_response_status_code=~\"2..\", \n  http_route=~\".*\", \n  http_route!=\"/healthz\", \n  http_route!=\"\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "x",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS-CLUSTER-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_response_status_code=~\"3..\", \n  http_route=~\".*\", \n  http_route!~\"/healthz|^$\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "x",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus_datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_response_status_code=~\"4..\", \n  http_route=~\".*\", \n  http_route!~\"/healthz|^$\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "x",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS-CLUSTER-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_response_status_code=~\"5..\", \n  http_route=~\".*\", \n  http_route!~\"/healthz|^$\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "x",
+          "range": true,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus_datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(rate(http_server_request_duration_seconds_sum{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_route=~\".*\", \n  http_route!~\"/healthz|^$\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "x",
+          "range": true,
+          "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS-CLUSTER-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "(\n  sum(rate(http_server_request_duration_seconds_sum{\n    exported_job=~\"$service_name\", \n    http_request_method=~\".*\", \n    http_route=~\".*\", \n    http_route!~\"/healthz|^$\"\n  }[5m])) by (exported_job, http_request_method, http_route) \n  / \n  sum(rate(http_server_request_duration_seconds_count{\n    exported_job=~\"$service_name\", \n    http_request_method=~\".*\", \n    http_route=~\".*\", \n    http_route!~\"/healthz|^$\"\n  }[5m])) by (exported_job, http_request_method, http_route) \n  >= 0\n) OR on() vector(0)",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "x",
+          "range": true,
+          "refId": "G"
+        }
+      ],
+      "title": "Requests statistics",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Time": {
+                "aggregations": []
               },
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "auto"
-                },
-                "filterable": false,
-                "inspect": false
+              "Value #A": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
               },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  }
-                ]
+              "Value #B": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
               },
-              "unit": "short"
+              "Value #C": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #D": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #E": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #F": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #G": {
+                "aggregations": [
+                  "mean"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #H": {
+                "aggregations": [
+                  "allValues"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #I": {
+                "aggregations": [
+                  "allValues"
+                ],
+                "operation": "aggregate"
+              },
+              "agent": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "http_request_method": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "groupby"
+              },
+              "http_route": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "http_target": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "job": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "method": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "path": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "status": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "instance": true,
+              "job": false
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "5xx"
-                },
-                "properties": [
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-text"
-                    }
-                  },
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green"
-                        },
-                        {
-                          "color": "red",
-                          "value": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "id": "custom.width",
-                    "value": 92
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "4xx"
-                },
-                "properties": [
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-text"
-                    }
-                  },
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green"
-                        },
-                        {
-                          "color": "red",
-                          "value": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "id": "custom.width",
-                    "value": 105
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "3xx"
-                },
-                "properties": [
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-text"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "2xx"
-                },
-                "properties": [
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-text"
-                    }
-                  },
-                  {
-                    "id": "custom.width",
-                    "value": 112
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Total time"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "ms"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Avg time"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "ms"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Error rate"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "percentunit"
-                  },
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-text",
-                      "wrapText": false
-                    }
-                  },
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green"
-                        },
-                        {
-                          "color": "#EAB839",
-                          "value": 0.01
-                        },
-                        {
-                          "color": "red",
-                          "value": 0.1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "id": "mappings",
-                    "value": [
-                      {
-                        "options": {
-                          "NaN": {
-                            "index": 0,
-                            "text": "0%"
-                          }
-                        },
-                        "type": "value"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Method"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 78
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Requests"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 115
-                  }
-                ]
-              },
-              {
+            "includeByName": {},
+            "indexByName": {
+              "Value #A (sum)": 3,
+              "Value #B (sum)": 4,
+              "Value #C (sum)": 5,
+              "Value #D (sum)": 6,
+              "Value #E (sum)": 7,
+              "Value #F (sum)": 8,
+              "Value #G (mean)": 9,
+              "http_request_method": 1,
+              "http_route": 2,
+              "job": 0
+            },
+            "renameByName": {
+              "Value #A (sum)": "Requests",
+              "Value #B (sum)": "2xx",
+              "Value #C (sum)": "3xx",
+              "Value #D (sum)": "4xx",
+              "Value #E (sum)": "5xx",
+              "Value #F (sum)": "Total time",
+              "Value #G (mean)": "Avg time",
+              "Value #G (sum)": "Avg duration",
+              "http_request_method": "Method",
+              "http_route": "Route",
+              "job": "Service"
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Errors",
+            "binary": {
+              "left": "3xx",
+              "reducer": "sum",
+              "right": "4xx"
+            },
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "4xx",
+                "5xx"
+              ],
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Error rate",
+            "binary": {
+              "left": {
                 "matcher": {
                   "id": "byName",
                   "options": "Errors"
-                },
-                "properties": []
+                }
               },
-              {
+              "operator": "/",
+              "right": {
                 "matcher": {
                   "id": "byName",
-                  "options": "Route"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 438
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Avg time"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "ms"
-                  }
-                ]
+                  "options": "Requests"
+                }
               }
-            ]
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 52
-          },
-          "id": 43,
-          "options": {
-            "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
             },
-            "showHeader": true,
-            "sortBy": [
-              {
-                "desc": true,
-                "displayName": "2xx"
-              }
-            ]
-          },
-          "pluginVersion": "12.0.0",
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS-CLUSTER-PRODUCTION}"
-              },
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_route=~\".*\", \n  http_route!=\"/healthz\", \n  http_route!=\"\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000",
-              "format": "table",
-              "instant": false,
-              "interval": "",
-              "legendFormat": "x",
-              "range": true,
-              "refId": "A"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${prometheus_datasource}"
-              },
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_response_status_code=~\"2..\", \n  http_route=~\".*\", \n  http_route!=\"/healthz\", \n  http_route!=\"\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
-              "format": "table",
-              "hide": false,
-              "instant": false,
-              "interval": "",
-              "legendFormat": "x",
-              "range": true,
-              "refId": "B"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS-CLUSTER-PRODUCTION}"
-              },
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_response_status_code=~\"3..\", \n  http_route=~\".*\", \n  http_route!~\"/healthz|^$\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
-              "format": "table",
-              "hide": false,
-              "instant": false,
-              "interval": "",
-              "legendFormat": "x",
-              "range": true,
-              "refId": "C"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${prometheus_datasource}"
-              },
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_response_status_code=~\"4..\", \n  http_route=~\".*\", \n  http_route!~\"/healthz|^$\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
-              "format": "table",
-              "hide": false,
-              "instant": false,
-              "interval": "",
-              "legendFormat": "x",
-              "range": true,
-              "refId": "D"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS-CLUSTER-PRODUCTION}"
-              },
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "sum(rate(http_server_request_duration_seconds_count{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_response_status_code=~\"5..\", \n  http_route=~\".*\", \n  http_route!~\"/healthz|^$\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
-              "format": "table",
-              "hide": false,
-              "instant": false,
-              "interval": "",
-              "legendFormat": "x",
-              "range": true,
-              "refId": "E"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${prometheus_datasource}"
-              },
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "sum(rate(http_server_request_duration_seconds_sum{\n  exported_job=~\"$service_name\", \n  http_request_method=~\".*\", \n  http_route=~\".*\", \n  http_route!~\"/healthz|^$\"\n}[5m])) by (exported_job, http_request_method, http_route) * $__interval_ms / 1000\n",
-              "format": "table",
-              "hide": false,
-              "instant": false,
-              "interval": "",
-              "legendFormat": "x",
-              "range": true,
-              "refId": "F"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS-CLUSTER-PRODUCTION}"
-              },
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "(\n  sum(rate(http_server_request_duration_seconds_sum{\n    exported_job=~\"$service_name\", \n    http_request_method=~\".*\", \n    http_route=~\".*\", \n    http_route!~\"/healthz|^$\"\n  }[5m])) by (exported_job, http_request_method, http_route) \n  / \n  sum(rate(http_server_request_duration_seconds_count{\n    exported_job=~\"$service_name\", \n    http_request_method=~\".*\", \n    http_route=~\".*\", \n    http_route!~\"/healthz|^$\"\n  }[5m])) by (exported_job, http_request_method, http_route) \n  >= 0\n) OR on() vector(0)",
-              "format": "table",
-              "hide": false,
-              "instant": false,
-              "interval": "",
-              "legendFormat": "x",
-              "range": true,
-              "refId": "G"
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
             }
-          ],
-          "title": "Requests statistics",
-          "transformations": [
-            {
-              "id": "merge",
-              "options": {}
-            },
-            {
-              "id": "groupBy",
-              "options": {
-                "fields": {
-                  "Time": {
-                    "aggregations": []
-                  },
-                  "Value #A": {
-                    "aggregations": [
-                      "sum"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "Value #B": {
-                    "aggregations": [
-                      "sum"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "Value #C": {
-                    "aggregations": [
-                      "sum"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "Value #D": {
-                    "aggregations": [
-                      "sum"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "Value #E": {
-                    "aggregations": [
-                      "sum"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "Value #F": {
-                    "aggregations": [
-                      "sum"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "Value #G": {
-                    "aggregations": [
-                      "mean"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "Value #H": {
-                    "aggregations": [
-                      "allValues"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "Value #I": {
-                    "aggregations": [
-                      "allValues"
-                    ],
-                    "operation": "aggregate"
-                  },
-                  "agent": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "http_request_method": {
-                    "aggregations": [
-                      "sum"
-                    ],
-                    "operation": "groupby"
-                  },
-                  "http_route": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "http_target": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "instance": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "job": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "method": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "path": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  },
-                  "status": {
-                    "aggregations": [],
-                    "operation": "groupby"
-                  }
-                }
-              }
-            },
-            {
-              "id": "organize",
-              "options": {
-                "excludeByName": {
-                  "instance": true,
-                  "job": false
-                },
-                "includeByName": {},
-                "indexByName": {
-                  "Value #A (sum)": 3,
-                  "Value #B (sum)": 4,
-                  "Value #C (sum)": 5,
-                  "Value #D (sum)": 6,
-                  "Value #E (sum)": 7,
-                  "Value #F (sum)": 8,
-                  "Value #G (mean)": 9,
-                  "http_request_method": 1,
-                  "http_route": 2,
-                  "job": 0
-                },
-                "renameByName": {
-                  "Value #A (sum)": "Requests",
-                  "Value #B (sum)": "2xx",
-                  "Value #C (sum)": "3xx",
-                  "Value #D (sum)": "4xx",
-                  "Value #E (sum)": "5xx",
-                  "Value #F (sum)": "Total time",
-                  "Value #G (mean)": "Avg time",
-                  "Value #G (sum)": "Avg duration",
-                  "http_request_method": "Method",
-                  "http_route": "Route",
-                  "job": "Service"
-                }
-              }
-            },
-            {
-              "id": "calculateField",
-              "options": {
-                "alias": "Errors",
-                "binary": {
-                  "left": "3xx",
-                  "reducer": "sum",
-                  "right": "4xx"
-                },
-                "mode": "reduceRow",
-                "reduce": {
-                  "include": [
-                    "4xx",
-                    "5xx"
-                  ],
-                  "reducer": "sum"
-                },
-                "replaceFields": false
-              }
-            },
-            {
-              "id": "calculateField",
-              "options": {
-                "alias": "Error rate",
-                "binary": {
-                  "left": {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "Errors"
-                    }
-                  },
-                  "operator": "/",
-                  "right": {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "Requests"
-                    }
-                  }
-                },
-                "mode": "binary",
-                "reduce": {
-                  "reducer": "sum"
-                }
-              }
-            }
-          ],
-          "type": "table"
+          }
         }
       ],
-      "title": "Operations (inbound) e Dependencies (outbound)",
-      "type": "row"
+      "type": "table"
     },
     {
       "collapsed": true,
@@ -1582,7 +1582,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 27
       },
       "id": 29,
       "panels": [
@@ -1706,7 +1706,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 215
+            "y": 142
           },
           "id": 30,
           "options": {
@@ -1788,7 +1788,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 28
       },
       "id": 25,
       "panels": [
@@ -1806,7 +1806,7 @@
             "h": 15,
             "w": 24,
             "x": 0,
-            "y": 366
+            "y": 293
           },
           "id": 26,
           "options": {
@@ -1929,13 +1929,14 @@
         "type": "query"
       },
       {
+        "allValue": ".*",
         "allowCustomValue": false,
         "current": {},
         "datasource": {
           "type": "prometheus",
           "uid": "${prometheus_datasource}"
         },
-        "definition": "label_values(target_info{service_namespace=~\"$service_namespace\", deployment_environment_name=~\"$deployment_environment_name\"},exported_job)",
+        "definition": "label_values(target_info{service_namespace=~\"$service_namespace\", deployment_environment_name=~\"$deployment_environment_name\"},k8s_container_name)",
         "description": "Service name.\nResource attribute `service.name` via `target_info`.",
         "includeAll": true,
         "label": "Name",
@@ -1943,7 +1944,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(target_info{service_namespace=~\"$service_namespace\", deployment_environment_name=~\"$deployment_environment_name\"},exported_job)",
+          "query": "label_values(target_info{service_namespace=~\"$service_namespace\", deployment_environment_name=~\"$deployment_environment_name\"},k8s_container_name)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -1971,6 +1972,6 @@
   "timezone": "",
   "title": "APM for OpenTelemetry",
   "uid": "febljk0a32qyoa2",
-  "version": 57,
+  "version": 63,
   "weekStart": ""
 }
